@@ -118,4 +118,43 @@ async function run() {
         })
 
 
+        app.get('/carts', async (req, res) => {
+            const email = req.query.email
+            // console.log(email);
+            if (!email) {
+                res.send([])
+            }
+
+
+            // const decodedEmail = req.decoded.email
+            // if (email !== decodedEmail) {
+            //     return res.status(403).send({ error: true, message: 'Forbidden Access' })
+            // }
+
+            const query = { email: email }
+            const result = await cartCollection.find(query).toArray()
+            res.send(result)
+        })
+
+
+
+
+        app.post('/carts', async (req, res) => {
+            const item = req.body;
+            console.log(item);
+            const result = await cartCollection.insertOne(item)
+            res.send(result)
+        })
+
+        // for delete
+        app.delete('/carts/:id', async (req, res) => {
+
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const result = await cartCollection.deleteOne(query)
+            res.send(result)
+
+        })
+
+
 
