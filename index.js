@@ -69,8 +69,6 @@ async function run() {
             res.send(result)
 
         })
-
-
         app.patch('/class/deny/:id', async (req, res) => {
 
             const id = req.params.id
@@ -118,6 +116,77 @@ async function run() {
         })
 
 
+
+
+        //check instuctor
+        app.get('/users/instuctor/:email', async (req, res) => {
+            const email = req.params.email
+
+
+            // if (req.decoded.email !== email) {
+            //     res.send({ admin: false })
+            // }
+
+            const query = { email: email }
+            const user = await userCollection.findOne(query)
+            const result = { instuctor: user?.role === 'instuctor' }
+            res.send(result)
+        })
+
+
+        // instuctor bananor jnnw
+
+        app.patch('/users/instuctor/:id', async (req, res) => {
+
+            const id = req.params.id
+            const filter = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: {
+                    role: 'instuctor'
+                }
+            }
+            const result = await userCollection.updateOne(filter, updateDoc)
+            res.send(result)
+
+        })
+
+
+
+
+        //check admin
+        app.get('/users/admin/:email', async (req, res) => {
+            const email = req.params.email
+
+
+            // if (req.decoded.email !== email) {
+            //     res.send({ admin: false })
+            // }
+
+            const query = { email: email }
+            const user = await userCollection.findOne(query)
+            const result = { admin: user?.role === 'admin' }
+            res.send(result)
+        })
+
+        // admin bananor jnnw
+
+        app.patch('/users/admin/:id', async (req, res) => {
+
+            const id = req.params.id
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    role: 'admin'
+                }
+            }
+            const result = await userCollection.updateOne(filter, updateDoc)
+            res.send(result)
+
+        })
+
+        // for cart collection apis
+
+
         app.get('/carts', async (req, res) => {
             const email = req.query.email
             // console.log(email);
@@ -156,5 +225,101 @@ async function run() {
 
         })
 
+        // create payment intend
+
+        app.get('/payments', async (req, res) => {
+            const result = await paymentCollection.find().toArray()
+            res.send(result)
+        })
 
 
+
+
+        app.post('/create-payment-intent', async (req, res) => {
+            const { price } = req.body
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: price,
+                currency: 'usd',
+                payment_method_types: ['card']
+            })
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
+        })
+
+
+        app.post('/payments', async (req, res) => {
+            const payment = req.body;
+            const insertResult = await paymentCollection.insertOne(payment);
+            const query = { _id: { $in: payment.cartItems.map(id => new ObjectId(id)) } };
+            const deleteResult = await cartCollection.deleteMany(query);
+            res.send({ insertResult, deleteResult });
+        });
+
+        // // ?payment related API
+        // app.post('/payments', async (req, res) => {
+        //     const payment = req.body
+        //     const insertResult = await paymentCollection.insertOne(payment)
+        //     const query = { _id: { $in: payment.cartItems.map(id => ObjectId(id)) } }
+        //     const deleteResult = await cartCollection.deleteMany(query)
+        //     res.send({ insertResult, deleteResult })
+        // })
+
+        //--------
+
+
+
+
+
+
+
+
+
+
+
+        // ========================================================================
+
+
+
+
+
+
+
+
+        // Send a ping to confirm a successful connection
+        await client.db("admin").command({ ping: 1 });
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    } finally {
+        // Ensures that the client will close when you finish/error
+        // await client.close();
+    }
+}
+run().catch(console.dir);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.get('/', (req, res) => {
+    res.send(" Music school is running")
+})
+
+app.listen(port, () => {
+    console.log(`Music is singing port on ${port}`);
+})
