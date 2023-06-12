@@ -69,3 +69,53 @@ async function run() {
             res.send(result)
 
         })
+
+
+        app.patch('/class/deny/:id', async (req, res) => {
+
+            const id = req.params.id
+            const filter = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: {
+                    statusbar: 'deny'
+                }
+            }
+            const result = await classCollection.updateOne(filter, updateDoc)
+            res.send(result)
+
+        })
+
+
+
+        // for instuctor
+
+
+        app.get('/instuctor', async (req, res) => {
+            const result = await instuctorCollection.find().toArray()
+            res.send(result)
+        })
+
+        // for user / student
+
+        app.get('/users', async (req, res) => {
+            const result = await userCollection.find().toArray()
+            res.send(result)
+        })
+
+
+
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            console.log(user);
+            const query = { email: user.email }
+            const existingUser = await userCollection.findOne(query)
+            console.log('existingUser:', existingUser);
+            if (existingUser) {
+                return res.send({ message: 'User Already Exist' })
+            }
+            const result = await userCollection.insertOne(user)
+            res.send(result)
+        })
+
+
+
