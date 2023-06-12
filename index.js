@@ -90,3 +90,33 @@ const client = new MongoClient(uri, {
             description: body.description,
           },
         };
+
+
+        MyToysCollection.updateOne(filter, updateDoc);
+      
+      if (result.modifiedCount === 1) {
+        // Fetch and return the updated toy data
+        const updatedToy = await MyToysCollection.findOne(filter);
+        res.send(updatedToy);
+      } else {
+        res.status(404).send("Toy not found");
+      }
+    });
+    
+
+
+    app.delete("/MyToys/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await MyToysCollection.deleteOne(query);
+      res.send(result);
+    });
+
+
+
+    // For My Toys
+
+   
+    
+
+    // Send a ping to confirm a successful connection
