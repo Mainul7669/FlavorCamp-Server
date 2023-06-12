@@ -43,3 +43,50 @@ const client = new MongoClient(uri, {
         const result = await toysCollection.findOne(query);
         res.send(result);
       });
+
+
+
+      // For My Toys
+
+    app.get("/MyToys", async (req, res) => {
+        const cursor = MyToysCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+      });
+  
+      app.get("/MyToys/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await MyToysCollection.findOne(query);
+        res.send(result);
+      });
+  
+          // to get user email
+          app.get("/MyToys/:email", async (req, res) => {
+            console.log(req.params.email);
+            const toys = await MyToysCollection.find({
+              sellerEmail: req.params.email,
+            }).toArray();
+            res.send(toys);
+          });
+  
+      app.post("/MyToys", async (req, res) => {
+        const newToy = req.body;
+        console.log(newToy);
+        const result = await MyToysCollection.insertOne(newToy);
+        res.send(result);
+      });
+  
+  
+      app.put("/MyToys/:id", async (req, res) => {
+        const id = req.params.id;
+        const body = req.body;
+        console.log(body);
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = {
+          $set: {
+            quantity: body.quantity,
+            price: body.price,
+            description: body.description,
+          },
+        };
