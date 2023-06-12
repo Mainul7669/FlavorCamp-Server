@@ -22,3 +22,50 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
+
+async function run() {
+    try {
+        // Connect the client to the server	(optional starting in v4.7)
+        await client.connect();
+        // ========================================================================
+        // database collection
+        const classCollection = client.db("campDb").collection("class")
+        const instuctorCollection = client.db("campDb").collection("instuctor")
+        const cartCollection = client.db("campDb").collection("carts");
+        const userCollection = client.db("campDb").collection("users");
+
+        const paymentCollection = client.db("campDb").collection("payments");
+
+
+
+        // -------------------------
+
+        // -----------------
+        // for class
+
+        app.get('/class', async (req, res) => {
+            const result = await classCollection.find().toArray()
+            res.send(result)
+        })
+
+
+        app.post('/class', async (req, res) => {
+            const newClass = req.body
+            const result = await classCollection.insertOne(newClass)
+            res.send(result)
+
+        })
+
+        app.patch('/class/approved/:id', async (req, res) => {
+
+            const id = req.params.id
+            const filter = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: {
+                    statusbar: 'approved'
+                }
+            }
+            const result = await classCollection.updateOne(filter, updateDoc)
+            res.send(result)
+
+        })
